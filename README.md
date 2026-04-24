@@ -8,11 +8,9 @@
 
 ---
 
-## ⭐ Looking for contributors ⭐
+## ⚠️ Unmaintained ⚠️
 
-I unfortunately can't dedicate much time anymore on Text Extractor. It's mostly feature-complete, but there are many improvements and quality of life features that could be implemented.
-
-You're more than welcome to submit PRs, and I will gladly help and mentor :)
+I unfortunately can't dedicate any more time on Text Extractor. Pull requests are welcome, and you're free to fork and improve on this project.
 
 ---
 
