@@ -1,20 +1,14 @@
-# Obsidian Text Extractor
+# Text Extractor for Docling
 
-[![Sponsor me](https://img.shields.io/badge/%E2%9D%A4%20Like%20this%20plugin%3F-Sponsor%20me!-ff69b4)](https://github.com/sponsors/scambier)  
-![Obsidian plugin](https://img.shields.io/endpoint?url=https%3A%2F%2Fscambier.xyz%2Fobsidian-endpoints%2Ftext-extractor.json)
-![GitHub release (latest by date and asset)](https://img.shields.io/github/downloads/scambier/obsidian-text-extractor/latest/main.js)  
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/scambier/obsidian-text-extractor)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/scambier/obsidian-text-extractor?include_prereleases&label=BRAT%20beta)
+An Obsidian plugin that extracts text from PDFs, images, and Office documents
+through an external docling-serve instance. It retains the `text-extractor`
+plugin ID and API for compatibility with
+[Omnisearch](https://github.com/scambier/obsidian-omnisearch).
 
----
-
-## ⚠️ Unmaintained ⚠️
-
-I unfortunately can't dedicate any more time on Text Extractor. Pull requests are welcome, and you're free to fork and improve on this project.
-
----
-
-**Text Extractor** is a "companion" plugin. It's mainly useful when used in conjunction with other plugins (like [Omnisearch](https://github.com/scambier/obsidian-omnisearch)), but you can also use it to quickly extract texts from **images & PDFs**.
+Maintained by [camucamulemon7](https://github.com/camucamulemon7/obsidian-text-extractor-docling).
+Based on the original
+[Obsidian Text Extractor](https://github.com/scambier/obsidian-text-extractor)
+by Simon Cambier.
 
 ![](https://raw.githubusercontent.com/scambier/obsidian-text-extractor/master/images/context_menu.png)
 
@@ -26,14 +20,13 @@ Supported files:
 
 ### Limitations
 
-- The plugin currently uses [Tesseract.js](https://tesseract.projectnaptha.com/) and [pdf-extract](https://github.com/jrmuizel/pdf-extract) to extract texts from images and PDFs. Those libraries are not perfect, and may not work on some files.
-- **🟥 PDF files often fail to get their text extracted 🟥**. See [#7](https://github.com/scambier/obsidian-text-extractor/issues/7) and [#21](https://github.com/scambier/obsidian-text-extractor/discussions/21)
-- **🟥 Text Extraction does not work on mobile 🟥**. Read the following section for more details.
-- Text Extractor needs an Internet connection to work. All the processing is done locally, but the language files needed by the underlying OCR library (Tesseract) are downloaded on demand.
+- This fork requires a reachable docling-serve instance.
+- Local PDF parsing, OCR, and Office extraction are not included.
 
 ### Cache & Sync
 
-The plugin caches the extracted texts as local small `.json` files inside the plugin directory. Those files can be synced between your devices. Since text extraction does not work on mobile, the plugin will use the synced cached texts if available. If not, an empty string will be returned.
+The plugin caches extracted text as local `.json` files inside the plugin
+directory. Subsequent requests use the cache without contacting docling-serve.
 
 
 
@@ -75,6 +68,25 @@ const text = await getTextExtractor()?.extractText(file)
 
 Note that Text Extractor only extract texts _on demand_, when you call `extractText()` on a file, to avoid unnecessary resource consumption. Subsequent calls to `extractText()` will return the cached text.
 
+## docling-serve
+
+This fork sends PDF, image, DOCX, and XLSX extraction to an external
+[docling-serve](https://github.com/docling-project/docling-serve) instance.
+This keeps PDF parsing and OCR work off the computer running Obsidian.
+
+Enable **Use docling-serve** in the Text Extractor settings and set the server
+URL (for example, `http://gpu-server:5001`). Plain text output is recommended
+for Omnisearch. Configure an API key when the server requires one; it is sent
+in the `X-Api-Key` header. OCR languages, OCR engine, processing pipeline, and
+VLM model can be selected in the settings. The default setup uses Japanese and
+English, EasyOCR, the standard pipeline, PyPDFium2, a 300-second timeout, and
+concurrency `1`.
+
+Run docling-serve on a trusted LAN or behind a VPN, particularly when your
+vault contains private documents. This fork retains the `text-extractor`
+plugin ID for Omnisearch compatibility, so it replaces the official Text
+Extractor plugin and cannot be installed alongside it.
+
 ## Development
 
 While this plugin is first developed for Omnisearch, it's totally agnostic and I'd like it to become a community effort. If you wish to submit a PR, please open an issue first so we can discuss the feature.
@@ -84,4 +96,5 @@ The plugin is split in two parts:
 - The text extraction library, which does the actual work
 - The plugin itself, which is a wrapper around the library and exposes some useful options to the user
 
-Each project is in its own folder, and has its own `package.json` and `node_modules`. The library uses Rollup (easier to setup with Wasm and web workers), while the plugin uses esbuild.
+Each project is in its own folder and has its own `package.json` and
+`node_modules`. The library uses Rollup, while the plugin uses esbuild.

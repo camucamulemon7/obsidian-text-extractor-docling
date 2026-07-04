@@ -1,14 +1,10 @@
 {
 	"id": "text-extractor",
-	"name": "Text Extractor",
-	"version": "0.7.0",
+	"name": "Text Extractor for Docling",
+	"version": "0.8.0",
 	"minAppVersion": "1.4.16",
-	"description": "A (companion) plugin to facilitate the extraction of text from images (OCR) and PDFs.",
-	"author": "Simon Cambier",
-	"authorUrl": "https://github.com/scambier/obsidian-text-extractor",
-	"fundingUrl": {
-		"Github": "https://github.com/sponsors/scambier",
-		"Ko-fi": "https://ko-fi.com/scambier"
-	},
+	"description": "Extract text from PDFs, images, and Office documents with docling-serve. Compatible with Omnisearch.",
+	"author": "camucamulemon7",
+	"authorUrl": "https://github.com/camucamulemon7/obsidian-text-extractor-docling",
 	"isDesktopOnly": false
 }

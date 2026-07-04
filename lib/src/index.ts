@@ -1,38 +1,31 @@
-import { pdfManager } from './pdf/pdf-manager'
-import { officeManager } from './office/office-manager'
-import { clearOCRWorkers, ocrManager } from './ocr/ocr-manager'
-import { ocrLangs } from './ocr/ocr-langs'
 import type { TFile } from 'obsidian'
-import type { OcrOptions } from './types'
-import { pdfProcessQueue } from './globals'
+import type { ExtractTextOptions } from './types'
 import { convertOldCachePaths, getCacheBasePath, getCachePath } from './cache'
+import { doclingManager } from './docling/docling-manager'
 
 /**
  * Returns a promise that resolves to the text extracted from the file.
- * On mobile, if the text is not already extracted and cached, will return an empty string.
  * Will throw an error if the file type is not supported; check canFileBeExtracted() first.
  * @param file
- * @param options - An array of languages to try. If not provided, the default is English
+ * @param options - docling-serve connection and conversion options
  * @returns
  */
 function extractText(
   file: TFile,
-  options: Partial<OcrOptions>
+  options: Partial<ExtractTextOptions> = {}
 ): Promise<string> {
-  const opts = Object.assign(
-    {},
-    { langs: ['eng'], useSystemOCR: false },
-    options
-  )
-
-  if (isFilePDF(file.path)) {
-    return pdfManager.getPdfText(file)
-  } else if (isFileImage(file.path)) {
-    return ocrManager.getImageText(file, opts)
-  } else if (isFileOffice(file.path)) {
-    return officeManager.getOfficeText(file)
+  if (!canFileBeExtracted(file.path)) {
+    throw new Error('File type not supported')
   }
-  throw new Error('File type not supported')
+
+  if (!options.docling?.enabled) {
+    return Promise.resolve('')
+  }
+
+  return doclingManager.getText(file, options.docling).catch(error => {
+    console.warn(`Text Extractor - docling-serve failed for ${file.path}`, error)
+    return ''
+  })
 }
 
 function isFilePDF(path: string): boolean {
@@ -42,16 +35,18 @@ function isFilePDF(path: string): boolean {
 function isFileImage(path: string): boolean {
   path = path.toLowerCase()
   return (
-    path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg') ||
-    path.endsWith('.webp') || path.endsWith('.gif') || path.endsWith('.bmp')
+    path.endsWith('.png') ||
+    path.endsWith('.jpg') ||
+    path.endsWith('.jpeg') ||
+    path.endsWith('.webp') ||
+    path.endsWith('.gif') ||
+    path.endsWith('.bmp')
   )
 }
 
 function isFileOffice(path: string): boolean {
   path = path.toLowerCase()
-  return (
-    path.endsWith('.docx') || path.endsWith('.xlsx')
-  )
+  return path.endsWith('.docx') || path.endsWith('.xlsx')
 }
 
 /**
@@ -64,18 +59,11 @@ function canFileBeExtracted(filePath: string): boolean {
 }
 
 /**
- * Returns the list of supported languages for OCR
- */
-function getOcrLangs(): typeof ocrLangs {
-  return ocrLangs
-}
-
-/**
  * Clears the process queue.
  * This stops any pending text extraction.
  */
 function clearProcessQueue() {
-  pdfProcessQueue.clear()
+  doclingManager.clearQueue()
 }
 
 async function isInCache(file: TFile): Promise<boolean> {
@@ -92,12 +80,10 @@ async function removeFromCache(file: TFile): Promise<void> {
 
 export {
   extractText,
-  getOcrLangs,
   canFileBeExtracted,
   clearProcessQueue,
   isInCache,
   removeFromCache,
   getCacheBasePath,
-  clearOCRWorkers,
   convertOldCachePaths,
 }

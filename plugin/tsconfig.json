@@ -13,7 +13,6 @@
     "isolatedModules": true,
 	  "strictNullChecks": true,
     "types": [
-      "svelte",
       "node",
       "obsidian"
     ],
