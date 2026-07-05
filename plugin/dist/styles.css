@@ -1,0 +1,27 @@
+.text-extractor-disabled-callout {
+  margin: var(--size-4-3) 0;
+  padding: var(--size-4-3);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  background: var(--background-secondary);
+}
+
+.text-extractor-language-setting {
+  align-items: flex-start;
+}
+
+.text-extractor-language-setting .setting-item-control {
+  width: min(100%, 34rem);
+}
+
+@media (max-width: 700px) {
+  .text-extractor-language-setting {
+    display: block;
+  }
+
+  .text-extractor-language-setting .setting-item-control {
+    width: 100%;
+    margin-top: var(--size-4-2);
+  }
+}

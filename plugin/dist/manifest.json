@@ -1,0 +1,10 @@
+{
+	"id": "text-extractor",
+	"name": "Text Extractor for Docling",
+	"version": "0.8.0",
+	"minAppVersion": "1.4.16",
+	"description": "Extract text from PDFs, images, and Office documents with docling-serve. Compatible with Omnisearch.",
+	"author": "camucamulemon7",
+	"authorUrl": "https://github.com/camucamulemon7/obsidian-text-extractor-docling",
+	"isDesktopOnly": false
+}
