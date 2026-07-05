@@ -75,7 +75,8 @@ export async function writeCache(
   filename: string,
   text: string,
   ogPath: string,
-  langs: string
+  langs: string,
+  autoForceOcrAttempted = false
 ): Promise<void> {
   const path = `${folder}/${filename}`
   const data: ExtractedText = {
@@ -83,6 +84,7 @@ export async function writeCache(
     text,
     libVersion,
     langs,
+    autoForceOcrAttempted,
   }
   await app.vault.adapter.mkdir(folder)
   return await app.vault.adapter.write(path, JSON.stringify(data))

@@ -203,16 +203,19 @@ async function extractToClipboard(file: TFile) {
 }
 
 async function extractToNewNote(file: TFile) {
-  let contents = await extractTextWithNotice(file)
+  const extractedText = await extractTextWithNotice(file)
+  const contents = cleanExtractedNote(extractedText)
   if (!contents) {
     new Notice(
       'Text Extractor - No text was extracted. Check docling-serve and clear the file cache before retrying.'
     )
     return
   }
-  contents = `${contents}\n\n![[${file.path}]]`
-  // Create a new note and open it
   await createNote(file.basename, contents)
+}
+
+function cleanExtractedNote(text: string): string {
+  return text.replace(/<!--\s*image\s*-->\s*/gi, '').trim()
 }
 
 function getActiveFile(app: App): TFile | null {

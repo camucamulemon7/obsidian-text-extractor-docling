@@ -2,6 +2,10 @@ import PQueue from 'p-queue'
 import type { TFile } from 'obsidian'
 import { getCachePath, readCache, writeCache } from '../cache'
 import type { DoclingOptions } from '../types'
+import {
+  selectMoreSearchableText,
+  shouldRetryWithForceOcr,
+} from './ocr-fallback'
 
 class DoclingManager {
   private readonly queue = new PQueue({ concurrency: 1 })
@@ -27,19 +31,69 @@ class DoclingManager {
   ): Promise<string> {
     const cache = await readCache(file)
     if (cache) {
+      if (
+        !cache.autoForceOcrAttempted &&
+        shouldRetryWithForceOcr(file.path, cache.text ?? '', options)
+      ) {
+        return await this.retryWithForceOcr(
+          file,
+          options,
+          cache.text ?? ''
+        )
+      }
       return cache.text ?? ''
     }
 
     const text = await this.callDoclingServe(file, options)
+    if (shouldRetryWithForceOcr(file.path, text, options)) {
+      return await this.retryWithForceOcr(file, options, text)
+    }
+
+    await this.writeTextCache(file, options, text, false)
+    return text
+  }
+
+  private async retryWithForceOcr(
+    file: TFile,
+    options: DoclingOptions,
+    originalText: string
+  ): Promise<string> {
+    console.info(
+      `Text Extractor - Retrying image-heavy PDF with Force OCR: ${file.path}`
+    )
+    try {
+      const forcedOcrText = await this.callDoclingServe(file, {
+        ...options,
+        forceOcr: true,
+      })
+      const text = selectMoreSearchableText(originalText, forcedOcrText)
+      await this.writeTextCache(file, options, text, true)
+      return text
+    } catch (error) {
+      console.warn(
+        `Text Extractor - Automatic Force OCR retry failed for ${file.path}`,
+        error
+      )
+      await this.writeTextCache(file, options, originalText, true)
+      return originalText
+    }
+  }
+
+  private async writeTextCache(
+    file: TFile,
+    options: DoclingOptions,
+    text: string,
+    autoForceOcrAttempted: boolean
+  ): Promise<void> {
     const cachePath = getCachePath(file)
     await writeCache(
       cachePath.folder,
       cachePath.filename,
       text,
       file.path,
-      options.ocrLang.join(',')
+      options.ocrLang.join(','),
+      autoForceOcrAttempted
     )
-    return text
   }
 
   private async callDoclingServe(

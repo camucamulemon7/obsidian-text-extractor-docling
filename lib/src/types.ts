@@ -3,6 +3,7 @@ export type ExtractedText = {
   text: string
   langs: string
   libVersion: string
+  autoForceOcrAttempted?: boolean
   // hash: string
   // size: number
 }

@@ -1,6 +1,8 @@
 import TextExtractorPlugin from './main'
 import { Notice, PluginSettingTab, Setting } from 'obsidian'
 import { getCacheBasePath } from 'obsidian-text-extract'
+import { writable } from 'svelte/store'
+import LangSelector from './components/LangSelector.svelte'
 
 interface TextExtractorSettings {
   useDoclingServe: boolean
@@ -29,6 +31,14 @@ export class TextExtractorSettingsTab extends PluginSettingTab {
   constructor(plugin: TextExtractorPlugin) {
     super(app, plugin)
     this.plugin = plugin
+
+    selectedLanguages.subscribe(async languages => {
+      if (sameLanguages(settings.doclingOcrLanguages, languages)) {
+        return
+      }
+      settings.doclingOcrLanguages = languages
+      await saveSettings(this.plugin)
+    })
   }
 
   display(): void {
@@ -278,78 +288,13 @@ export class TextExtractorSettingsTab extends PluginSettingTab {
     const languageSetting = new Setting(containerEl)
       .setName('OCR languages')
       .setDesc(
-        'Select any number of languages. No selection lets the engine detect automatically.'
+        'Search for languages and add multiple selections. Remove a language with ×.'
       )
     languageSetting.settingEl.addClass('text-extractor-language-setting')
 
-    const details = languageSetting.controlEl.createEl('details', {
-      cls: 'text-extractor-language-picker',
+    new LangSelector({
+      target: languageSetting.controlEl,
     })
-    const summary = details.createEl('summary')
-    const grid = details.createDiv({ cls: 'text-extractor-language-grid' })
-
-    const updateSummary = () => {
-      const selected = OCR_LANGUAGES.filter(language =>
-        settings.doclingOcrLanguages.includes(language.code)
-      )
-      summary.setText(
-        selected.length === 0
-          ? 'Automatic detection'
-          : selected.length <= 3
-          ? selected.map(language => language.name).join(', ')
-          : `${selected.length} languages selected`
-      )
-    }
-
-    for (const language of OCR_LANGUAGES) {
-      const label = grid.createEl('label', {
-        cls: 'text-extractor-language-option',
-      })
-      const checkbox = label.createEl('input', {
-        type: 'checkbox',
-        value: language.code,
-      })
-      checkbox.checked = settings.doclingOcrLanguages.includes(language.code)
-      label.createSpan({ text: language.name })
-      label.createEl('code', { text: language.code })
-      checkbox.addEventListener('change', async () => {
-        const selected = new Set(settings.doclingOcrLanguages)
-        if (checkbox.checked) {
-          selected.add(language.code)
-        } else {
-          selected.delete(language.code)
-        }
-        settings.doclingOcrLanguages = OCR_LANGUAGES.map(
-          item => item.code
-        ).filter(code => selected.has(code))
-        updateSummary()
-        await saveSettings(this.plugin)
-      })
-    }
-
-    const actions = details.createDiv({
-      cls: 'text-extractor-language-actions',
-    })
-    const selectRecommended = actions.createEl('button', {
-      text: 'Japanese + English',
-      cls: 'mod-cta',
-    })
-    selectRecommended.type = 'button'
-    selectRecommended.addEventListener('click', async event => {
-      event.preventDefault()
-      settings.doclingOcrLanguages = ['ja', 'en']
-      await saveSettings(this.plugin)
-      this.display()
-    })
-    const clear = actions.createEl('button', { text: 'Clear' })
-    clear.type = 'button'
-    clear.addEventListener('click', async event => {
-      event.preventDefault()
-      settings.doclingOcrLanguages = []
-      await saveSettings(this.plugin)
-      this.display()
-    })
-    updateSummary()
   }
 }
 
@@ -369,27 +314,94 @@ const DEFAULT_SETTINGS: TextExtractorSettings = {
   doclingConcurrency: 1,
 }
 
-const OCR_LANGUAGES = [
-  { code: 'ja', name: 'Japanese' },
-  { code: 'en', name: 'English' },
-  { code: 'zh-cn', name: 'Chinese (Simplified)' },
-  { code: 'zh-tw', name: 'Chinese (Traditional)' },
-  { code: 'ko', name: 'Korean' },
-  { code: 'de', name: 'German' },
-  { code: 'fr', name: 'French' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'it', name: 'Italian' },
-  { code: 'pt', name: 'Portuguese' },
-  { code: 'ru', name: 'Russian' },
-  { code: 'ar', name: 'Arabic' },
-  { code: 'hi', name: 'Hindi' },
-  { code: 'th', name: 'Thai' },
-  { code: 'vi', name: 'Vietnamese' },
-  { code: 'nl', name: 'Dutch' },
-  { code: 'pl', name: 'Polish' },
-  { code: 'tr', name: 'Turkish' },
-  { code: 'uk', name: 'Ukrainian' },
-] as const
+export const OCR_LANGUAGES = [
+  'af',
+  'az',
+  'bs',
+  'cs',
+  'cy',
+  'da',
+  'de',
+  'en',
+  'es',
+  'et',
+  'fr',
+  'ga',
+  'hr',
+  'hu',
+  'id',
+  'is',
+  'it',
+  'ku',
+  'la',
+  'lt',
+  'lv',
+  'mi',
+  'ms',
+  'mt',
+  'nl',
+  'no',
+  'oc',
+  'pi',
+  'pl',
+  'pt',
+  'ro',
+  'rs_latin',
+  'sk',
+  'sl',
+  'sq',
+  'sv',
+  'sw',
+  'tl',
+  'tr',
+  'uz',
+  'vi',
+  'ar',
+  'fa',
+  'ug',
+  'ur',
+  'ru',
+  'rs_cyrillic',
+  'be',
+  'bg',
+  'uk',
+  'mn',
+  'abq',
+  'ady',
+  'kbd',
+  'ava',
+  'dar',
+  'inh',
+  'che',
+  'lbe',
+  'lez',
+  'tab',
+  'tjk',
+  'hi',
+  'mr',
+  'ne',
+  'bh',
+  'mai',
+  'ang',
+  'bho',
+  'mah',
+  'sck',
+  'new',
+  'gom',
+  'sa',
+  'bgc',
+  'bn',
+  'as',
+  'mni',
+  'th',
+  'ch_sim',
+  'ch_tra',
+  'ja',
+  'ko',
+  'ta',
+  'te',
+  'kn',
+]
 
 const VLM_MODELS = [
   { value: 'granite_docling', name: 'Granite Docling' },
@@ -447,6 +459,10 @@ export let settings = Object.assign(
   DEFAULT_SETTINGS
 ) as TextExtractorSettings
 
+export const selectedLanguages = writable<string[]>(
+  DEFAULT_SETTINGS.doclingOcrLanguages
+)
+
 export async function loadSettings(plugin: TextExtractorPlugin): Promise<void> {
   const saved = await plugin.loadData()
   settings = Object.assign({}, DEFAULT_SETTINGS, saved)
@@ -459,8 +475,16 @@ export async function loadSettings(plugin: TextExtractorPlugin): Promise<void> {
       .map((language: string) => language.trim())
       .filter(Boolean)
   }
+  selectedLanguages.set(settings.doclingOcrLanguages)
 }
 
 export async function saveSettings(plugin: TextExtractorPlugin): Promise<void> {
   await plugin.saveData(settings)
+}
+
+function sameLanguages(left: string[], right: string[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((language, index) => language === right[index])
+  )
 }
