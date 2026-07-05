@@ -98,3 +98,11 @@ The plugin is split in two parts:
 
 Each project is in its own folder and has its own `package.json` and
 `node_modules`. The library uses Rollup, while the plugin uses esbuild.
+
+## Acknowledgements
+
+This project is a fork of
+[scambier/obsidian-text-extractor](https://github.com/scambier/obsidian-text-extractor).
+Heartfelt thanks to Simon Cambier and all contributors to the original project
+for building the foundation, maintaining Omnisearch compatibility, and making
+their work available to the community.
