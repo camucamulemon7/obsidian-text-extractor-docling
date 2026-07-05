@@ -1,0 +1,91 @@
+.text-extractor-disabled-callout {
+  margin: var(--size-4-3) 0;
+  padding: var(--size-4-3);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  background: var(--background-secondary);
+}
+
+.text-extractor-language-setting {
+  align-items: flex-start;
+}
+
+.text-extractor-language-setting .setting-item-control {
+  width: min(100%, 34rem);
+}
+
+.text-extractor-language-picker {
+  width: 100%;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--input-radius);
+  background: var(--background-primary);
+}
+
+.text-extractor-language-picker > summary {
+  min-height: var(--input-height);
+  padding: var(--size-2-2) var(--size-4-2);
+  cursor: pointer;
+  color: var(--text-normal);
+  user-select: none;
+}
+
+.text-extractor-language-picker[open] > summary {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.text-extractor-language-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--size-2-1);
+  max-height: 18rem;
+  padding: var(--size-4-2);
+  overflow-y: auto;
+}
+
+.text-extractor-language-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--size-4-2);
+  align-items: center;
+  min-width: 0;
+  padding: var(--size-2-2) var(--size-4-2);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.text-extractor-language-option:hover {
+  background: var(--background-modifier-hover);
+}
+
+.text-extractor-language-option input {
+  margin: 0;
+}
+
+.text-extractor-language-option code {
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+}
+
+.text-extractor-language-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--size-4-2);
+  padding: var(--size-4-2);
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+@media (max-width: 700px) {
+  .text-extractor-language-setting {
+    display: block;
+  }
+
+  .text-extractor-language-setting .setting-item-control {
+    width: 100%;
+    margin-top: var(--size-4-2);
+  }
+
+  .text-extractor-language-grid {
+    grid-template-columns: 1fr;
+  }
+}

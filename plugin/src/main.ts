@@ -18,9 +18,7 @@ export type TextExtractorApi = {
 export default class TextExtractorPlugin extends Plugin {
   public api: TextExtractorApi = {
     async extractText(file: TFile): Promise<string> {
-      const langs = settings.ocrLanguages
-      const useSystemOCR = settings.useSystemOCR
-      return await TextExtract.extractText(file, { langs, useSystemOCR })
+      return await TextExtract.extractText(file, buildExtractOptions())
     },
     canFileBeExtracted: TextExtract.canFileBeExtracted,
     isInCache: TextExtract.isInCache,
@@ -32,26 +30,26 @@ export default class TextExtractorPlugin extends Plugin {
     this.addSettingTab(new TextExtractorSettingsTab(this))
 
     this.addCommand({
-      id: "extract-to-clipboard",
-      name: "Extract text to clipboard",
+      id: 'extract-to-clipboard',
+      name: 'Extract text to clipboard',
       callback: () => {
         const file = getActiveFile(this.app)
         if (file != null && canFileBeExtracted(file.path)) {
-          extractToClipboard(file);
+          extractToClipboard(file)
         }
       },
-    });
+    })
 
     this.addCommand({
-      id: "extract-to-new-note",
-      name: "Extract text into a new note",
+      id: 'extract-to-new-note',
+      name: 'Extract text into a new note',
       callback: () => {
         const file = getActiveFile(this.app)
         if (file != null && canFileBeExtracted(file.path)) {
-          extractToNewNote(file);
+          extractToNewNote(file)
         }
       },
-    });
+    })
 
     this.registerEvent(
       app.workspace.on('file-menu', (menu, file, _source) => {
@@ -124,29 +122,99 @@ async function extractTextWithNotice(file: TFile) {
     )
   }
   try {
-    const langs = settings.ocrLanguages
-    const useSystemOCR = settings.useSystemOCR
-    return await extractText(file, { langs, useSystemOCR })
+    return await extractText(file, buildExtractOptions())
   } catch (e) {
     new Notice(`Text Extractor - Error extracting text from file ${file.path}`)
     throw e
   }
 }
 
+function buildExtractOptions() {
+  return {
+    docling: {
+      enabled: settings.useDoclingServe,
+      serverUrl: settings.doclingServeUrl,
+      apiKey: settings.doclingApiKey,
+      outputFormat: settings.doclingOutputFormat,
+      doOcr: settings.doclingDoOcr,
+      forceOcr: settings.doclingForceOcr,
+      ocrPreset: settings.doclingOcrPreset,
+      ocrLang: getOcrLanguageCodes(
+        settings.doclingOcrLanguages,
+        settings.doclingOcrPreset
+      ),
+      pipeline: settings.doclingPipeline,
+      pdfBackend: settings.doclingPdfBackend,
+      vlmModel:
+        settings.doclingPipeline === 'vlm'
+          ? settings.doclingVlmModel
+          : undefined,
+      timeoutMs: settings.doclingTimeoutSec * 1000,
+      concurrency: settings.doclingConcurrency,
+    },
+  }
+}
+
+const TESSERACT_LANGUAGE_CODES: Record<string, string> = {
+  ja: 'jpn',
+  en: 'eng',
+  de: 'deu',
+  fr: 'fra',
+  es: 'spa',
+  it: 'ita',
+  pt: 'por',
+  ko: 'kor',
+  'zh-cn': 'chi_sim',
+  'zh-tw': 'chi_tra',
+  ru: 'rus',
+  ar: 'ara',
+  hi: 'hin',
+  th: 'tha',
+  vi: 'vie',
+  nl: 'nld',
+  pl: 'pol',
+  tr: 'tur',
+  uk: 'ukr',
+}
+
+function getOcrLanguageCodes(
+  languages: string[],
+  preset: 'auto' | 'easyocr' | 'tesseract'
+): string[] {
+  if (preset !== 'tesseract') {
+    return languages
+  }
+  return languages.map(
+    language => TESSERACT_LANGUAGE_CODES[language] ?? language
+  )
+}
+
 async function extractToClipboard(file: TFile) {
   const { clipboard } = require('electron')
   const text = await extractTextWithNotice(file)
+  if (!text) {
+    new Notice(
+      'Text Extractor - No text was extracted. Check docling-serve and clear the file cache before retrying.'
+    )
+    return
+  }
   await clipboard.writeText(text)
   new Notice('Text Extractor - Text copied to clipboard')
 }
 
 async function extractToNewNote(file: TFile) {
   let contents = await extractTextWithNotice(file)
+  if (!contents) {
+    new Notice(
+      'Text Extractor - No text was extracted. Check docling-serve and clear the file cache before retrying.'
+    )
+    return
+  }
   contents = `${contents}\n\n![[${file.path}]]`
   // Create a new note and open it
   await createNote(file.basename, contents)
 }
 
 function getActiveFile(app: App): TFile | null {
-  return app.workspace.activeEditor?.file ?? app.workspace.getActiveFile();
+  return app.workspace.activeEditor?.file ?? app.workspace.getActiveFile()
 }

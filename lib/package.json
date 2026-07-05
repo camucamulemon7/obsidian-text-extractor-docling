@@ -10,8 +10,8 @@
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "dev": "wasm-pack build --target web && rollup -c -w",
-    "build": "wasm-pack build --target web && rollup -c",
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm run build"
@@ -25,33 +25,22 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@testing-library/jest-dom": "^5.17.0",
-    "@tsconfig/svelte": "^3.0.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^20.19.11",
-    "@types/pako": "^2.0.4",
     "@vitest/coverage-v8": "^2.1.9",
     "babel-jest": "^27.5.1",
-    "builtin-modules": "^3.3.0",
     "jest": "^27.5.1",
     "obsidian": "^1.8.7",
     "prettier": "^2.8.8",
     "rollup": "^2.79.2",
-    "rollup-plugin-base64": "^1.0.1",
-    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-delete": "^2.2.0",
-    "rollup-plugin-polyfill-node": "^0.13.0",
     "rollup-plugin-typescript2": "^0.34.1",
-    "rollup-plugin-web-worker-loader": "^1.7.0",
     "tslib": "2.3.1",
     "typescript": "^4.9.5",
     "vitest": "^2.1.9"
   },
   "dependencies": {
-    "@apollo/utils.createhash": "^3.0.1",
-    "mammoth": "^1.10.0",
     "p-queue": "^7.4.1",
-    "pure-md5": "^0.1.14",
-    "tesseract.js": "^3.0.3",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
+    "pure-md5": "^0.1.14"
   }
 }

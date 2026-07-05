@@ -1,19 +1,13 @@
 # Obsidian Text Extract Library
 
-## Limitations
-
-Text extraction does not work on mobile; calling the functions will just immediately return an empty string.
-
 ## Build
 
-You'll need [Rust], [wasm-pack], and [pnpm].
+You'll need [pnpm].
 
 ```sh
 $ pnpm i
 $ pnpm build
 ```
-
-Rust is quite slow to compile, so the first build will take some time.
 
 ## Test
 
@@ -30,6 +24,4 @@ $ pnpm coverage
 ```
 
 [pnpm]: https://pnpm.io/installation
-[Rust]: https://doc.rust-lang.org/book/ch01-01-installation.html
 [Vitest]: https://vitest.dev/
-[wasm-pack]: https://github.com/rustwasm/wasm-pack
