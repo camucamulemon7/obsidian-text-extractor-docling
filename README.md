@@ -16,7 +16,7 @@ Supported files:
 
 - Images (`.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
 - PDFs (`.pdf`)
-- Office documents (`.docx`, `.xlsx`)
+- Office documents (`.docx`, `.xlsx`, `.pptx`)
 
 ### Limitations
 
@@ -70,7 +70,7 @@ Note that Text Extractor only extract texts _on demand_, when you call `extractT
 
 ## docling-serve
 
-This fork sends PDF, image, DOCX, and XLSX extraction to an external
+This fork sends PDF, image, DOCX, XLSX, and PPTX extraction to an external
 [docling-serve](https://github.com/docling-project/docling-serve) instance.
 This keeps PDF parsing and OCR work off the computer running Obsidian.
 

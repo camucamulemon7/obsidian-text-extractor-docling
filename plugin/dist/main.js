@@ -633,7 +633,7 @@ function U(t2) {
   return t2.toLowerCase().endsWith(".pdf") || function(t3) {
     return (t3 = t3.toLowerCase()).endsWith(".png") || t3.endsWith(".jpg") || t3.endsWith(".jpeg") || t3.endsWith(".webp") || t3.endsWith(".gif") || t3.endsWith(".bmp");
   }(t2) || function(t3) {
-    return (t3 = t3.toLowerCase()).endsWith(".docx") || t3.endsWith(".xlsx");
+    return (t3 = t3.toLowerCase()).endsWith(".docx") || t3.endsWith(".xlsx") || t3.endsWith(".pptx");
   }(t2);
 }
 function H() {

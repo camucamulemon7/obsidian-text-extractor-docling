@@ -46,7 +46,11 @@ function isFileImage(path: string): boolean {
 
 function isFileOffice(path: string): boolean {
   path = path.toLowerCase()
-  return path.endsWith('.docx') || path.endsWith('.xlsx')
+  return (
+    path.endsWith('.docx') ||
+    path.endsWith('.xlsx') ||
+    path.endsWith('.pptx')
+  )
 }
 
 /**
